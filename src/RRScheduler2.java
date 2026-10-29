@@ -5,10 +5,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RoundRobinScheduler implements Scheduler {
+/** Round-Robin with time quantum = 2. */
+public class RRScheduler2 extends RoundRobinScheduler {
+    public RRScheduler2() {
+        super(2);
+    }
+}
+
+/**
+ * Shared Round-Robin logic parameterized by time quantum. RRScheduler2 and
+ * RRScheduler5 both extend this with their own fixed quantum.
+ */
+abstract class RoundRobinScheduler implements Scheduler {
     private final int timeQuantum;
 
-    public RoundRobinScheduler(int timeQuantum) {
+    protected RoundRobinScheduler(int timeQuantum) {
         this.timeQuantum = timeQuantum;
     }
 

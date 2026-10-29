@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -20,8 +21,8 @@ public class Main {
         List<Scheduler> schedulers = new ArrayList<>();
         schedulers.add(new FCFSScheduler());
         schedulers.add(new SJFScheduler());
-        schedulers.add(new RoundRobinScheduler(2));
-        schedulers.add(new RoundRobinScheduler(5));
+        schedulers.add(new RRScheduler2());
+        schedulers.add(new RRScheduler5());
 
         List<SchedulingResult> results = new ArrayList<>();
         for (Scheduler scheduler : schedulers) {
@@ -123,4 +124,56 @@ public class Main {
             System.out.printf("%-30s %.2f%n", result.algorithmName, result.averageTurnaroundTime);
         }
     }
+}
+
+/** A single job read from the input file. */
+class Job {
+    public final String name;
+    public final int burstTime;
+    public int remainingTime;
+
+    public Job(String name, int burstTime) {
+        this.name = name;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime;
+    }
+}
+
+/** One contiguous block of CPU time given to a job, used to draw the Gantt chart. */
+class ExecutionSlice {
+    public final String jobName;
+    public final int start;
+    public final int end;
+
+    public ExecutionSlice(String jobName, int start, int end) {
+        this.jobName = jobName;
+        this.start = start;
+        this.end = end;
+    }
+}
+
+/** The full outcome of running one scheduling algorithm over the job list. */
+class SchedulingResult {
+    public final String algorithmName;
+    public final List<ExecutionSlice> timeline;
+    public final Map<String, Integer> completionTimes;
+    public final Map<String, Integer> turnaroundTimes;
+    public final double averageTurnaroundTime;
+
+    public SchedulingResult(String algorithmName, List<ExecutionSlice> timeline,
+                             Map<String, Integer> completionTimes,
+                             Map<String, Integer> turnaroundTimes,
+                             double averageTurnaroundTime) {
+        this.algorithmName = algorithmName;
+        this.timeline = timeline;
+        this.completionTimes = completionTimes;
+        this.turnaroundTimes = turnaroundTimes;
+        this.averageTurnaroundTime = averageTurnaroundTime;
+    }
+}
+
+interface Scheduler {
+    String getName();
+
+    SchedulingResult run(List<Job> jobs);
 }
